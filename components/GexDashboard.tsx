@@ -4,7 +4,7 @@ import {useEffect,useMemo,useState} from 'react';
 
 type Node={strike:number;callGex:number;putGex:number;netGex:number;absoluteGex:number};
 type Summary={netGex:number;regime:'POSITIVE'|'NEGATIVE';kingNode:number|null;callWall:number|null;putWall:number|null;nearestNodes:Node[]};
-type Payload={connected:boolean;symbol:'SPY'|'QQQ';spot?:number;contractCount?:number;nodes?:Node[];summary?:Summary;asOf?:string;error?:string};
+type Payload={connected:boolean;authRequired?:boolean;symbol:'SPY'|'QQQ';spot?:number;contractCount?:number;nodes?:Node[];summary?:Summary;asOf?:string;error?:string};
 
 const money=(v:number)=>{const a=Math.abs(v);if(a>=1e9)return `${v<0?'-':''}$${(a/1e9).toFixed(2)}B`;if(a>=1e6)return `${v<0?'-':''}$${(a/1e6).toFixed(1)}M`;return `${v<0?'-':''}$${Math.round(a).toLocaleString()}`};
 const price=(v:number|null|undefined)=>v==null?'--':v.toFixed(2);
@@ -28,7 +28,7 @@ export default function GexDashboard(){
     <div className="segmented">{(['SPY','QQQ'] as const).map(s=><button key={s} onClick={()=>setSymbol(s)} className={symbol===s?'active':''}>{s}</button>)}</div>
     <button className="refresh" onClick={()=>load()} disabled={loading}>{loading?'Refreshing…':'Refresh'}</button>
    </section>
-   {!data?.connected&&!loading?<section className="offline card"><div className="eyebrow">LIVE DATA REQUIRED</div><h1>{symbol} market structure is not available yet.</h1><p>{data?.error??'Connect the Schwab Trader API to load real option-chain data.'}</p><div className="notice">No demo GEX values are being substituted. This dashboard only displays calculated levels from the live Schwab chain.</div></section>:null}
+   {!data?.connected&&!loading?<section className="offline card"><div className="eyebrow">LIVE DATA REQUIRED</div><h1>{symbol} market structure is not available yet.</h1><p>{data?.error??'Connect the Schwab Trader API to load real option-chain data.'}</p>{data?.authRequired?<a className="connectButton" href="/api/auth/schwab/start">Connect Schwab</a>:null}<div className="notice">No demo GEX values are being substituted. This dashboard only displays calculated levels from the live Schwab chain.</div></section>:null}
    {data?.connected&&data.summary&&data.spot!=null?<>
     <section className="heroGrid">
       <div className="priceCard card"><div className="eyebrow">{symbol} NOW</div><div className="spot">${price(data.spot)}</div><div className="meta">{data.contractCount?.toLocaleString()} option contracts analyzed</div></div>
