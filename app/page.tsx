@@ -1,1 +1,5 @@
-export default function Page(){return <main><h1>GEX Market Structure</h1><p>SPY / QQQ live options structure</p></main>}
+import GexDashboard from '../components/GexDashboard';
+
+export default function Page(){
+  return <GexDashboard/>;
+}
